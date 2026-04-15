@@ -1,16 +1,18 @@
 module RubyCall
 	export rbModule
 
-	libruby=dlopen("libruby")
+	using Libdl
 
-	ruby_init = dlsym(libruby, :ruby_init)
+	libruby=Libdl.dlopen("libruby")
+
+	ruby_init = Libdl.dlsym(libruby, :ruby_init)
 	ccall((:ruby_init, :libruby) , Void, ())
 
 	 code="Math.sqrt(9)"
-	 rb_eval_string = dlsym(libruby, :rb_eval_string)
+	 rb_eval_string = Libdl.dlsym(libruby, :rb_eval_string)
 
-	 rb_num2int = dlsym(libruby, :rb_num2int)
-	 rb_num2dbl = dlsym(libruby, :rb_num2dbl)
+	 rb_num2int = Libdl.dlsym(libruby, :rb_num2int)
+	 rb_num2dbl = Libdl.dlsym(libruby, :rb_num2dbl)
 
 	 const FIXNUM_MAX = typemax(Int64) >> 1
 	 const FIXNUM_MIN = typemin(Int64) >> 1
@@ -22,31 +24,31 @@ module RubyCall
 	 	end
 	 end 
 
-	 rb_int2fix(x::Int64) = reinterpret (Ptr{Void}, x << 1 | 0x01 )
+	 rb_int2fix(x::Int64) = reinterpret(Ptr{Void}, x << 1 | 0x01 )
 
-	rb_define_module = dlsym(libruby, :rb_define_module)
-	rb_funcall = dlsym(libruby, :rb_funcall)
+	rb_define_module = Libdl.dlsym(libruby, :rb_define_module)
+	rb_funcall = Libdl.dlsym(libruby, :rb_funcall)
 
-	rb_intern = dlsym(libruby, :rb_intern)
-	rb_int2big = dlsym(libruby, :rb_int2big)
+	rb_intern = Libdl.dlsym(libruby, :rb_intern)
+	rb_int2big = Libdl.dlsym(libruby, :rb_int2big)
 
 
   #############################################
 
-	type RbValue
+	struct RbValue
 		VALUE::Ptr{Void}
 	end
 
 	RbValue(x) = RbValue(convert_arg(x))
 
 	#This is VALUE* points to 
-	immutable RBasic 
+	struct RBasic 
     	flags::Ptr{Void};
     	klass::Ptr{Void};
 	end
 
 	#Wrapper around a Ruby Array
-	type RbArray <: AbstractArray
+	struct RbArray <: AbstractArray
 		VALUE::Ptr{Void}
 	end
 
